@@ -1,0 +1,21 @@
+{
+  "name": "tld-fullstack",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TLD Logistics — سامانه هوشمند لجستیک حمل و نقل سنگین (فول‌استک ماژولار)",
+  "workspaces": [
+    "packages/shared",
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "build": "npm run build -w @tld/shared && npm run build -w @tld/api && npm run build -w @tld/web",
+    "dev:api": "npm run dev -w @tld/api",
+    "dev:web": "npm run dev -w @tld/web",
+    "db:migrate": "node scripts/migrate.mjs",
+    "db:seed": "node scripts/seed.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
