@@ -23,6 +23,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.0.0",
     "@types/pg": "^8.23.1",
+    "@vercel/node": "^32.0.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0"
   }
