@@ -14,14 +14,16 @@ const registerSchema = z.object({
   password: z.string().min(6, 'رمز عبور حداقل ۶ کاراکتر'),
   fullName: z.string().min(3),
   role: z.enum(['shipper', 'driver']),
+  /** مشخصات کامل بر اساس نقش — به صورت JSONB ذخیره می‌شود */
+  profile: z.record(z.string(), z.string()).optional(),
 });
 
 r.post('/register', wrap(async (req, res) => {
   const body = registerSchema.parse(req.body);
   const hash = await bcrypt.hash(body.password, 10);
   const { rows } = await pool.query<User & { password_hash: string }>(
-    'INSERT INTO users (phone, password_hash, full_name, role) VALUES ($1, $2, $3, $4) RETURNING id, phone, full_name, role',
-    [body.phone, hash, body.fullName, body.role],
+    'INSERT INTO users (phone, password_hash, full_name, role, profile) VALUES ($1, $2, $3, $4, $5) RETURNING id, phone, full_name, role, profile',
+    [body.phone, hash, body.fullName, body.role, JSON.stringify(body.profile ?? {})],
   );
   const user = rows[0];
   res.status(201).json({ user, token: signToken({ id: user.id, role: user.role }) });
@@ -30,21 +32,35 @@ r.post('/register', wrap(async (req, res) => {
 r.post('/login', wrap(async (req, res) => {
   const body = z.object({ phone: z.string(), password: z.string() }).parse(req.body);
   const { rows } = await pool.query<User & { password_hash: string }>(
-    'SELECT id, phone, full_name, role, password_hash FROM users WHERE phone = $1',
+    'SELECT id, phone, full_name, role, profile, password_hash FROM users WHERE phone = $1',
     [body.phone],
   );
   const user = rows[0];
   if (!user || !(await bcrypt.compare(body.password, user.password_hash))) {
     throw new HttpError(401, 'شماره موبایل یا رمز عبور اشتباه است');
   }
-  res.json({ user: { id: user.id, phone: user.phone, fullName: user.fullName, role: user.role }, token: signToken({ id: user.id, role: user.role }) });
+  res.json({ user: { id: user.id, phone: user.phone, fullName: user.fullName, role: user.role, profile: user.profile }, token: signToken({ id: user.id, role: user.role }) });
 }));
 
 r.get('/me', requireAuth, wrap(async (req, res) => {
   const { rows } = await pool.query<User>(
-    'SELECT id, phone, full_name AS "fullName", role FROM users WHERE id = $1',
+    'SELECT id, phone, full_name AS "fullName", role, profile FROM users WHERE id = $1',
     [req.user!.id],
   );
   if (!rows[0]) throw new HttpError(404, 'کاربر یافت نشد');
+  res.json({ user: rows[0] });
+}));
+
+/** به‌روزرسانی پروفایل (فیلدهای ثبت‌نام) */
+r.put('/me', requireAuth, wrap(async (req, res) => {
+  const body = z.object({ fullName: z.string().min(3).optional(), profile: z.record(z.string(), z.string()).optional() }).parse(req.body);
+  const { rows } = await pool.query<User>(
+    `UPDATE users SET
+       full_name = COALESCE($2, full_name),
+       profile = CASE WHEN $3::jsonb IS NULL THEN profile ELSE profile || $3::jsonb END
+     WHERE id = $1
+     RETURNING id, phone, full_name AS "fullName", role, profile`,
+    [req.user!.id, body.fullName ?? null, body.profile ? JSON.stringify(body.profile) : null],
+  );
   res.json({ user: rows[0] });
 }));

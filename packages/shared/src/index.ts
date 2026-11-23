@@ -37,6 +37,28 @@ export interface User {
   phone: string;
   fullName: string;
   role: Role;
+  /** مشخصات کامل ثبت‌نام (شرکتی برای صاحب بار، وسیله نقلیه برای راننده) */
+  profile?: Record<string, string>;
+}
+
+/** فیلدهای ثبت‌نام صاحب بار */
+export interface ShipperProfile {
+  companyName: string;
+  nationalId: string;
+  economicCode?: string;
+  province: string;
+  city: string;
+  address: string;
+  landlinePhone?: string;
+}
+
+/** فیلدهای ثبت‌نام راننده */
+export interface DriverProfile {
+  licenseNumber: string;
+  vehicleType: string;
+  plateNumber: string;
+  province: string;
+  city: string;
 }
 
 export interface Cargo {
