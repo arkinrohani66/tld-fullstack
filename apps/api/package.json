@@ -1,5 +1,8 @@
 {
-  "name": "@tld/api-legacy",
+  "name": "tld-web-build",
   "private": true,
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "scripts": {
+    "build": "cd ../.. && npm install --no-audit --no-fund && npm run build && rm -rf apps/api/dist && mkdir -p apps/api/dist && cp -r dist/. apps/api/dist/"
+  }
 }
