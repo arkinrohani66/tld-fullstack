@@ -9,9 +9,8 @@ const env = (import.meta as any).env || {};
  * این مقادیر باید با DEFAULT_SUPABASE_URL / DEFAULT_SUPABASE_ANON_KEY
  * در `src/services/supabaseClient.ts` همگام باشند.
  */
-const DEFAULT_SUPABASE_URL = 'https://xucsgbapstfcftwrurhy.supabase.co';
-const DEFAULT_SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1Y3NnYmFwc3RmY2Z0d3J1cmh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODcyNTYsImV4cCI6MjEwOTU2MzI1Nn0.ErywlPc2YHL9x2pLu8qK3yoFDasVW3ABV4ejLYPsbZE';
+const DEFAULT_SUPABASE_URL = env.VITE_SUPABASE_URL || '';
+const DEFAULT_SUPABASE_ANON_KEY = env.VITE_SUPABASE_ANON_KEY || '';
 
 const PLACEHOLDER_KEYS = new Set(['', 'your-anon-key', 'MY_SUPABASE_ANON_KEY', 'undefined', 'null']);
 

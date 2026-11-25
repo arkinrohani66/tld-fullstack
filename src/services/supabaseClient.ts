@@ -1,22 +1,13 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-/**
- * Supabase bootstrap.
- *
- * The app must talk to exactly ONE project. Previously the `.env` file pointed to
- * `mxwfmynyvxnlthferxhs` while the fallbacks below pointed to
- * `axkujlcppxbngskebyjn`, so a build without env vars silently connected to a
- * different (empty) database. The fallbacks are now aligned with the project that
- * the migrations in `supabase/` were applied to.
- */
-export const DEFAULT_SUPABASE_URL = 'https://xucsgbapstfcftwrurhy.supabase.co';
-export const DEFAULT_SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1Y3NnYmFwc3RmY2Z0d3J1cmh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODcyNTYsImV4cCI6MjEwOTU2MzI1Nn0.ErywlPc2YHL9x2pLu8qK3yoFDasVW3ABV4ejLYPsbZE';
-
 const env = (import.meta as any).env || {};
 
+const DEFAULT_SUPABASE_URL = 'https://pignzsgzhqgyfravucyz.supabase.co';
+export { DEFAULT_SUPABASE_URL };
+
 const supabaseUrl: string = env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
-const supabaseAnonKey: string = env.VITE_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
+const supabaseAnonKey: string = env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+export const SUPABASE_ANON_KEY = supabaseAnonKey;
 const forceMock: boolean = env.VITE_USE_MOCK_DATA === 'true';
 
 const PLACEHOLDER_VALUES = new Set([
