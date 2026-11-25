@@ -3,29 +3,25 @@ import { CARGO_STATUS_LABELS, type Cargo, type CargoStatus, type Bid } from '@tl
 import { useAuth } from './auth.js';
 import { api } from './api.js';
 import { useEffect, useState, type FormEvent } from 'react';
-import Splash from './screens/Splash.js';
-import RoleSelect from './screens/RoleSelect.js';
-import Login from './screens/Login.js';
-import ShipperRegister from './screens/ShipperRegister.js';
-import DriverRegister from './screens/DriverRegister.js';
+import { Splash } from './screens/stitch/Splash.js';
+import { Onboarding } from './screens/stitch/Onboarding.js';
+import { LanguageSelection } from './screens/stitch/LanguageSelection.js';
+import { Login } from './screens/stitch/Login.js';
+import { SignUp } from './screens/stitch/SignUp.js';
+import { RoleSelection } from './screens/stitch/RoleSelection.js';
 import ShipperHome from './screens/ShipperHome.js';
 import DriverHome from './screens/DriverHome.js';
 
 function Header() {
   const { user, logout } = useAuth();
   const nav = useNavigate();
+  if (!user) return null;
   return (
     <header className="header">
       <Link to="/" className="brand">TLD Logistics</Link>
       <nav>
-        {user ? (
-          <>
-            <span className="muted">{user.fullName}</span>
-            <button onClick={() => { logout(); nav('/roles'); }}>خروج</button>
-          </>
-        ) : (
-          <Link to="/roles">ورود / ثبت‌نام</Link>
-        )}
+        <span className="muted">{user.fullName}</span>
+        <button onClick={() => { logout(); nav('/login'); }}>خروج</button>
       </nav>
     </header>
   );
@@ -101,18 +97,19 @@ export default function App() {
   return (
     <>
       <Header />
-      <main>
+      <main className="!max-w-none !p-0">
         <Routes>
           <Route path="/" element={<Splash />} />
-          <Route path="/roles" element={user ? <Navigate to={`/${user.role}`} replace /> : <RoleSelect />} />
-          <Route path="/login/shipper" element={user?.role === 'shipper' ? <Navigate to="/shipper" replace /> : <Login role="shipper" />} />
-          <Route path="/login/driver" element={user?.role === 'driver' ? <Navigate to="/driver" replace /> : <Login role="driver" />} />
-          <Route path="/register/shipper" element={user?.role === 'shipper' ? <Navigate to="/shipper" replace /> : <ShipperRegister />} />
-          <Route path="/register/driver" element={user?.role === 'driver' ? <Navigate to="/driver" replace /> : <DriverRegister />} />
-          <Route path="/shipper" element={user?.role === 'shipper' ? <ShipperHome /> : <Navigate to="/login/shipper" replace />} />
-          <Route path="/driver" element={user?.role === 'driver' ? <DriverHome /> : <Navigate to="/login/driver" replace />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/language" element={<LanguageSelection />} />
+          <Route path="/login" element={user ? <Navigate to={`/${user.role}`} replace /> : <Login />} />
+          <Route path="/role-select" element={user ? <Navigate to={`/${user.role}`} replace /> : <SignUp />} />
+          <Route path="/register" element={user ? <Navigate to={`/${user.role}`} replace /> : <SignUp />} />
+          <Route path="/roles" element={user ? (user.role === 'driver' ? <RoleSelection /> : <Navigate to="/shipper" replace />) : <Navigate to="/login" replace />} />
+          <Route path="/shipper" element={user?.role === 'shipper' ? <ShipperHome /> : <Navigate to="/login" replace />} />
+          <Route path="/driver" element={user?.role === 'driver' ? <DriverHome /> : <Navigate to="/login" replace />} />
           <Route path="/cargos/new" element={<Navigate to="/shipper" replace />} />
-          <Route path="/cargos/:id" element={user ? <CargoDetail /> : <Navigate to="/roles" replace />} />
+          <Route path="/cargos/:id" element={user ? <CargoDetail /> : <Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
