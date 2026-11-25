@@ -122,6 +122,11 @@ export const ShipperCreateCargoScreen: React.FC<ShipperCreateCargoScreenProps> =
 
   const handleSubmitCargo = async () => {
     const finalFare = pricingMode === 'FIXED_PRICE' ? customPriceTomans : aiRecommendedFare;
+    // کارمزد ۵٪ و مالیات ۹٪ روی کارمزد، به کرایه‌ی راننده اضافه می‌شود؛
+    // کرایه‌ی راننده دست‌نخورده می‌ماند و کل مبلغ را صاحب بار پرداخت می‌کند.
+    const commissionTomans = Math.round(finalFare * 5 / 100);
+    const vatTomans = Math.round(commissionTomans * 9 / 100);
+    const totalPayableTomans = finalFare + commissionTomans + vatTomans;
 
     const newCargoData: Omit<ShipperFullCargo, 'id' | 'cargoNumber' | 'createdAt' | 'bidsCount'> = {
       status: 'PENDING_DRIVER',
@@ -1113,6 +1118,39 @@ export const ShipperCreateCargoScreen: React.FC<ShipperCreateCargoScreenProps> =
                     </span>
                   </div>
                 </div>
+                {/* تفکیک کارمزد و مالیات — کرایه راننده دست‌نخورده، مبلغ کل را صاحب بار پرداخت می‌کند */}
+                {(() => {
+                  const fare = pricingMode === 'FIXED_PRICE' ? customPriceTomans : aiRecommendedFare;
+                  const commission = Math.round(fare * 5 / 100);
+                  const vat = Math.round(commission * 9 / 100);
+                  return (
+                    <div className="mt-3 rounded-xl border border-[#c4c5da] bg-[#f6f7fb] p-3 space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-[#545f72]">{trText('کرایه راننده:', 'Driver fare:', 'Şoför ücreti:')}</span>
+                        <span className="font-jetbrains font-bold text-[#1a1b23]">{fare.toLocaleString('fa-IR')} {trText('تومان', 'Toman', 'Toman')}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-[#545f72]">{trText('کارمزد پلتفرم (۵٪):', 'Platform commission (5%):', 'Platform komisyonu (%5):')}</span>
+                        <span className="font-jetbrains text-[#1a1b23]">{commission.toLocaleString('fa-IR')} {trText('تومان', 'Toman', 'Toman')}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-[#545f72]">{trText('مالیات ارزش افزوده (۹٪ روی کارمزد):', 'VAT (9% on commission):', 'KDV (%9 komisyon üzeri):')}</span>
+                        <span className="font-jetbrains text-[#1a1b23]">{vat.toLocaleString('fa-IR')} {trText('تومان', 'Toman', 'Toman')}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[12px] pt-1.5 border-t border-[#e2e1ed]">
+                        <span className="font-bold text-[#1a1b23]">{trText('مبلغ قابل پرداخت شما:', 'Total payable:', 'Ödenecek toplam:')}</span>
+                        <span className="font-jetbrains font-bold text-[#00258e]">{(fare + commission + vat).toLocaleString('fa-IR')} {trText('تومان', 'Toman', 'Toman')}</span>
+                      </div>
+                      <p className="text-[10px] text-[#545f72] leading-4">
+                        {trText(
+                          'کارمزد و مالیات به کرایه راننده اضافه می‌شود؛ کرایه‌ی راننده بدون کسر پرداخت می‌گردد.',
+                          'Commission and VAT are added on top; the driver receives the full fare.',
+                          'Komisyon ve KDV ücrete eklenir; şoför tam ücreti alır.'
+                        )}
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}
