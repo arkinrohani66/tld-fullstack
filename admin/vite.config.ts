@@ -20,6 +20,7 @@ export default defineConfig({
   server: {
     port: 3100,
     host: '0.0.0.0',
+    allowedHosts: true,
   },
   build: {
     outDir: path.resolve(__dirname, '..', 'dist-admin'),
