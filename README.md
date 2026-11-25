@@ -1,53 +1,114 @@
-# TLD Fullstack — سامانه لجستیک حمل و نقل سنگین
+# TLD Logistics — پلتفرم حمل‌ونقل هوشمند
 
-نسخه فول‌استک ماژولار TLD Logistics: بازار آنلاین حمل بار (اعلام بار، مناقعه قیمت)، پرداخت امانی (escrow) با کارمزد ۵٪ و ۹٪ مالیات بر آن، بارنامه الکترونیک و تله‌متری IoT (TLD-Box).
+سامانه جامع حمل بار سنگین، رهگیری IoT و داوری دیجیتال، شامل **دو اپلیکیشن مستقل** که هر دو به یک دیتابیس Supabase وصل می‌شوند:
 
-## معماری
+| اپ | مسیر | مخاطب | خروجی بیلد |
+|---|---|---|---|
+| **اپ اصلی** (PWA موبایل) | `src/` | راننده، صاحب بار | `dist/` |
+| **وب مدیریتی** | `admin/` | مدیران پلتفرم | `dist-admin/` |
+| **دیتابیس** | `supabase/` | — | migrations + edge functions |
 
-```
-tld-fullstack/
-├── apps/
-│   ├── api/            بک‌اند Express + TypeScript + PostgreSQL
-│   │   ├── src/modules/   دامنه‌های کسب‌وکار (هر کدام مستقل)
-│   │   │   ├── auth/      ثبت‌نام، ورود، JWT
-│   │   │   ├── cargos/    اعلام بار و مشاهده
-│   │   │   ├── bids/      پیشنهاد قیمت راننده و پذیرش توسط صاحب بار
-│   │   │   ├── escrow/    واریز امانی، تسویه، کارمزد، بارنامه
-│   │   │   └── tracking/  تله‌متری TLD-Box
-│   │   └── migrations/    مایگریشن‌های SQL
-│   └── web/            فرانت‌اند React 19 + Vite (فارسی RTL)
-├── packages/shared/    انواع و ثابت‌های مشترک (قرارداد API)
-└── scripts/            مایگریشن و seed
-```
+---
 
-## اجرا
+## ۱. پیش‌نیازها
+
+- Node.js ۱۸ یا بالاتر
+- یک پروژه Supabase
+
+## ۲. راه‌اندازی
 
 ```bash
-# پیش‌نیاز: PostgreSQL (یا docker compose up -d)
-export DATABASE_URL=postgres://ubuntu:ubuntu@localhost:5432/app
-
 npm install
-npm run db:migrate
-npm run db:seed          # کاربران نمونه: 09120000001 (صاحب بار) و 09120000002 (راننده)، رمز 123456
-npm run dev:api          # بک‌اند روی پورت 4000
-npm run dev:web          # فرانت‌اند روی پورت 5173 (پروکسی /api به 4000)
+
+cp .env.example .env      # سپس مقادیر Supabase را جایگزین کنید
+
+npm run dev               # اپ اصلی روی http://localhost:3000
+npm run admin:dev         # وب مدیریتی روی http://localhost:3100
 ```
 
-## افزودن قابلیت جدید (طراحی ماژولار)
+### متغیرهای محیطی
 
-1. پوشه جدید در `apps/api/src/modules/<name>/index.ts` بسازید که `{ prefix, router }` صادر کند.
-2. آن را در آرایه `modules` در `apps/api/src/modules/index.ts` ثبت کنید — همین.
-3. جدول‌های جدید را در `apps/api/migrations/00N_*.sql` اضافه کنید (`npm run db:migrate`).
-4. انواع مشترک را در `packages/shared/src/index.ts` بگذارید تا فرانت و بک هم‌نسخه بمانند.
-
-## جریان کاری بار
-
-`listed` → (پیشنهاد راننده + پذیرش صاحب بار) → `assigned` → واریز امانی → `funded` → شروع حمل + بارنامه → `in_transit` → اعلام تحویل → `delivered` → تسویه (آزادسازی منهای ۵٪ کارمزد و ۹٪ مالیات آن) → `released`
-
-## تنظیمات محیطی (apps/api)
-
-| متغیر | پیش‌فرض |
+| متغیر | توضیح |
 |---|---|
-| `DATABASE_URL` | `postgres://ubuntu:ubuntu@localhost:5432/app` |
-| `PORT` | `4000` |
-| `JWT_SECRET` | مقدار توسعه — در production حتماً ست شود |
+| `VITE_SUPABASE_URL` | آدرس پروژه Supabase |
+| `VITE_SUPABASE_ANON_KEY` | کلید عمومی (anon/publishable) — برای هر دو اپ |
+| `VITE_USE_MOCK_DATA` | `true` = اجرا با داده آزمایشی و بدون دیتابیس |
+| `VITE_GEMINI_API_KEY` | اختیاری، برای دستیار هوشمند |
+| `VITE_GEMINI_MODEL_*` | اختیاری، نام مدل‌های دستیار (پیش‌فرض در `src/services/geminiService.ts`) |
+
+> کلید `service_role` هرگز نباید در `.env` سمت کلاینت یا در مخزن قرار بگیرد. این کلید فقط برای اجرای migration و اسکریپت‌های سروری است.
+>
+> اگر `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` تعریف نشوند، هر دو اپ روی مقادیر پیش‌فرض دمو در `src/services/supabaseClient.ts` و `admin/src/lib/supabase.ts` بالا می‌آیند تا نصب اولیه بدون `.env` هم کار کند. کلید anon عمومی است؛ امنیت واقعی از RLS می‌آید.
+
+## ۳. دیتابیس
+
+ساختار در `supabase/migrations/` نگهداری می‌شود و باید **به ترتیب تاریخ** اجرا شود:
+
+```
+20261105071303_escrow_settlement_and_waybills.sql
+20261105212408_lock_down_ledger_and_waybill_policies.sql
+20261105212801_escrow_waybill_functions_server_only.sql
+20261106150644_create_cargos_and_bids_tables.sql
+20261106150709_accept_driver_bid_and_cargo_owner_escrow_check.sql
+20261108103000_core_tables_rls_and_money_flow.sql
+20261109120000_fix_cargo_flow_counter_offers_and_visibility.sql
+20261109140000_modular_platform_core.sql
+```
+
+برای نصب یکجا، فایل `supabase/apply_now.sql` را در **SQL Editor** داشبورد Supabase اجرا کنید.
+
+### معماری قابل توسعه
+
+لایه پلتفرمی (migration آخر) امکان افزودن قابلیت‌های جدید را بدون بازنویسی اسکیما فراهم می‌کند:
+
+| جدول | کاربرد |
+|---|---|
+| `feature_modules` | روشن/خاموش کردن ماژول‌ها بدون دیپلوی مجدد |
+| `app_settings` | تنظیمات زمان اجرا به‌صورت JSONB |
+| `status_definitions` | وضعیت‌های قابل افزودن (افزودن وضعیت = یک ردیف، نه migration) |
+| `audit_log` | ثبت همه اقدامات مدیریتی |
+| `media_assets` | مدارک و فایل‌های آپلودی |
+
+افزودن یک قابلیت جدید معمولاً یعنی: یک migration کوچک + یک ردیف در `feature_modules` + یک صفحه در اپ.
+
+## ۴. اسکریپت‌ها
+
+| دستور | کار |
+|---|---|
+| `npm run dev` | اجرای اپ اصلی |
+| `npm run admin:dev` | اجرای وب مدیریتی |
+| `npm run build` | بیلد اپ اصلی (PWA) |
+| `npm run admin:build` | بیلد وب مدیریتی |
+| `npm run typecheck` / `typecheck:admin` | بررسی تایپ‌ها |
+| `npm run clean` | حذف خروجی‌های بیلد |
+
+> هر دو دستور بیلد از `scripts/build.mjs` عبور می‌کنند. این اسکریپت `TEMP/TMP` را به `.tmp-build/` داخل پروژه هدایت می‌کند؛ روی ویندوز اگر آنتی‌ویروس فایل موقت esbuild را قفل کند، بیلد با خطای `remove ...: Access is denied` وسط کار متوقف می‌شد و `dist/` نیمه‌کاره می‌ماند. اگر باز هم بیلد شکست خورد، پوشه پروژه را در آنتی‌ویروس استثنا کنید.
+
+## ۵. دسترسی مدیریت
+
+پس از اجرای migrationها، حساب مدیر باید در جدول `profiles` نقش `ADMIN` داشته باشد:
+
+```sql
+update public.profiles
+   set role = 'ADMIN', verification_status = 'APPROVED'
+ where email = 'admin@tldlogistics.ir';
+```
+
+سپس از `http://localhost:3100` با همان ایمیل/رمز وارد شوید. دسترسی در سمت سرور با تابع `is_admin()` و سیاست‌های RLS کنترل می‌شود، نه در مرورگر.
+
+## ۶. امنیت
+
+- تمام جداول RLS دارند؛ نوشتن مستقیم کلاینت فقط برای ردیف‌های خود کاربر مجاز است.
+- پول و تخصیص بار فقط از طریق توابع `SECURITY DEFINER` (edge functions) انجام می‌شود.
+- کلید عملیاتی (`service_role`) فقط در edge functions استفاده می‌شود.
+- کارمزد پلتفرم: **۵٪ کرایه + ۹٪ مالیات بر ارزش افزوده روی کارمزد** (بر عهده صاحب بار).
+
+## ۷. دیپلوی
+
+- **اپ اصلی:** خروجی `dist/` را روی هر هاست استاتیک (Vercel/Netlify/Cloudflare Pages) بگذارید.
+- **وب مدیریتی:** خروجی `dist-admin/` را روی یک دامنه جدا (مثلاً `admin.tldlogistics.ir`) منتشر کنید.
+- Edge functions: `supabase functions deploy <name>`
+
+---
+
+توسعه‌یافته برای **TLD Logistics** — `tldlogistics.ir`

@@ -1,21 +1,48 @@
 {
-  "name": "tld-fullstack",
-  "version": "0.1.0",
+  "name": "tld-logistics",
   "private": true,
-  "description": "TLD Logistics — سامانه هوشمند لجستیک حمل و نقل سنگین (فول‌استک ماژولار)",
-  "workspaces": [
-    "packages/shared",
-    "apps/api",
-    "apps/web"
-  ],
+  "version": "0.1.0",
+  "type": "module",
   "scripts": {
-    "build": "npm run build -w @tld/shared && npm run build -w @tld/api && npm run build -w @tld/web",
-    "dev:api": "npm run dev -w @tld/api",
-    "dev:web": "npm run dev -w @tld/web",
-    "db:migrate": "node scripts/migrate.mjs",
-    "db:seed": "node scripts/seed.mjs"
+    "dev": "vite --port=3000 --host=0.0.0.0",
+    "build": "node scripts/build.mjs",
+    "preview": "vite preview",
+    "clean": "node -e \"const fs=require('fs');for(const p of ['dist','dist-admin','server.js','.tmp-build','.tmp-esbuild']){try{fs.rmSync(p,{recursive:true,force:true})}catch(e){}}\"",
+    "typecheck": "tsc --noEmit",
+    "typecheck:admin": "tsc -p admin/tsconfig.json --noEmit",
+    "admin:dev": "vite --config admin/vite.config.ts",
+    "admin:build": "node scripts/build.mjs --config admin/vite.config.ts",
+    "lint": "tsc --noEmit"
   },
-  "engines": {
-    "node": ">=20"
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@google/genai": "^2.4.0",
+    "@supabase/supabase-js": "^2.112.3",
+    "@tailwindcss/vite": "^4.1.14",
+    "@vitejs/plugin-react": "^5.0.4",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
+    "jsqr": "^1.4.0",
+    "lucide-react": "^0.546.0",
+    "motion": "^12.23.24",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.0",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.4.21",
+    "esbuild": "^0.25.0",
+    "tailwindcss": "^4.1.14",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.3",
+    "vite-plugin-pwa": "^2.0.0"
   }
 }

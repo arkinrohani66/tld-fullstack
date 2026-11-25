@@ -1,0 +1,21 @@
+{
+  "projectId": "72664501",
+  "functions": {
+    "confirm-delivery-and-settle": {
+      "hasChanged": false,
+      "hash": "42a22aeefd6d5c902c1d5c0953a5a604d7e8d6e6683b88cbc79ed393035aab67"
+    },
+    "create-escrow-hold": {
+      "hasChanged": false,
+      "hash": "a59a865107696026b75ab44a102db482fa95e7591472207c7cb61a472209fc2c"
+    },
+    "lookup-waybill": {
+      "hasChanged": false,
+      "hash": "c785d26cd7d1605852499778e3e0be351e9a41c5445419d8105200e790f50f76"
+    },
+    "accept-driver-bid": {
+      "hasChanged": false,
+      "hash": "93d7cd0109f150a79d7e1dc63ed9a26a308703ae53b2602e38e56e2e91fe8e43"
+    }
+  }
+}

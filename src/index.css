@@ -1,0 +1,169 @@
+@import "tailwindcss";
+@import "./fonts.css";
+
+/* Material Symbols — self-hosted (no Google CDN dependency for Iranian networks) */
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
+}
+
+@theme {
+  /*
+   * Typography strategy:
+   *   TLD-FA   = Vazirmatn, limited by unicode-range to Persian/Arabic glyphs
+   *   TLD-TECH = JetBrains Mono, limited by unicode-range to Latin glyphs
+   *
+   * Both families are used in ONE stack. Because each @font-face only claims its
+   * own unicode-range, the browser resolves per character: Persian letters and
+   * Persian digits (۰-۹) come from Vazirmatn, English letters and Latin digits
+   * (0-9) come from JetBrains Mono. No per-element overrides are required.
+   */
+  --font-vazirmatn: 'TLD-FA', 'TLD-TECH', Tahoma, sans-serif;
+  --font-jetbrains: 'TLD-TECH', 'TLD-FA', monospace;
+
+  --color-primary: #00258e;
+  --color-primary-container: #0036c5;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #a6b4ff;
+  --color-primary-fixed: #dde1ff;
+  --color-primary-fixed-dim: #b9c3ff;
+  --color-on-primary-fixed: #001356;
+  --color-on-primary-fixed-variant: #0034bf;
+  --color-inverse-primary: #b9c3ff;
+
+  --color-secondary: #545f72;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #d8e3fa;
+  --color-on-secondary-container: #5a6578;
+  --color-secondary-fixed: #d8e3fa;
+  --color-secondary-fixed-dim: #bcc7dd;
+  --color-on-secondary-fixed: #111c2c;
+  --color-on-secondary-fixed-variant: #3c4759;
+
+  --color-tertiary: #661200;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #8e1d00;
+  --color-on-tertiary-container: #ff9f88;
+  --color-tertiary-fixed: #ffdad2;
+  --color-tertiary-fixed-dim: #ffb4a2;
+  --color-on-tertiary-fixed: #3c0700;
+  --color-on-tertiary-fixed-variant: #8a1c00;
+
+  --color-surface: #fbf8ff;
+  --color-surface-dim: #d4daea;
+  --color-surface-bright: #fbf8ff;
+  --color-surface-variant: #e2e1ed;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f4f2fe;
+  --color-surface-container: #eeedf9;
+  --color-surface-container-high: #e8e7f3;
+  --color-surface-container-highest: #e2e1ed;
+  --color-on-surface: #1a1b23;
+  --color-on-surface-variant: #444655;
+  --color-inverse-surface: #2f3039;
+  --color-inverse-on-surface: #f1effb;
+
+  --color-outline: #747686;
+  --color-outline-variant: #c4c5da;
+  --color-surface-tint: #2b4fda;
+
+  --color-background: #fbf8ff;
+  --color-on-background: #1a1b23;
+
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --color-status-active: #00a368;
+  --color-status-pending: #eab308;
+  --color-status-warning: #f97316;
+  --color-status-critical: #ba1a1a;
+  --color-status-available: #0ea5e9;
+  --color-status-busy: #6366f1;
+  --color-accent-cyan: #00d4ff;
+}
+
+/* Base typography: the composite stack resolves Persian → Vazirmatn and
+   Latin/numbers → JetBrains Mono automatically, per character. */
+html,
+body,
+p,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+input,
+textarea,
+select,
+button,
+[role="button"],
+.btn,
+.font-vazirmatn,
+.persian-font {
+  font-family: var(--font-vazirmatn);
+}
+
+body {
+  background-color: #fbf8ff;
+  color: #1a1b23;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Explicit "technical" text (codes, telemetry, tracking numbers, sensor data):
+   force JetBrains Mono for the whole string, digits included. */
+code,
+pre,
+kbd,
+samp,
+.font-jetbrains,
+.font-tech,
+.tech-font,
+.font-mono,
+.sensor,
+.sensor-val,
+.telemetry,
+.metric-num,
+.tracking-code,
+.num-digit {
+  font-family: var(--font-jetbrains) !important;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.material-symbols-outlined.fill {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Industrial Data Grid Animation */
+@keyframes indeterminate {
+  0% { left: -50%; width: 50%; }
+  50% { left: 25%; width: 50%; }
+  100% { left: 100%; width: 50%; }
+}
+
+.loading-bar-inner {
+  animation: indeterminate 1.5s infinite ease-in-out;
+}

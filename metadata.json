@@ -1,0 +1,6 @@
+{
+  "name": "TLD Logistics",
+  "description": "سامانه هوشمند مدیریت یکپارچه لجستیک حمل و نقل سنگین - TLD Transport Logistics Digital",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

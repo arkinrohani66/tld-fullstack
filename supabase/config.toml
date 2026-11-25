@@ -1,0 +1,16 @@
+project_id = "xucsgbapstfcftwrurhy"
+
+[functions.accept-driver-bid]
+verify_jwt = true
+
+[functions.accept-counter-offer]
+verify_jwt = true
+
+[functions.create-escrow-hold]
+verify_jwt = true
+
+[functions.confirm-delivery-and-settle]
+verify_jwt = true
+
+[functions.lookup-waybill]
+verify_jwt = true
